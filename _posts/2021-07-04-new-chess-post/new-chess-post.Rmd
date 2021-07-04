@@ -1,0 +1,23 @@
+---
+title: "New chess post"
+description: |
+  A short description of the post.
+author:
+  - name: Robert Pikmets
+    url: https://github.com/robertpikmets
+date: 07-04-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+Win or lose?
+
+Let's find out.
+
+

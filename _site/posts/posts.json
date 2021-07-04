@@ -1,0 +1,19 @@
+[
+  {
+    "path": "posts/2021-07-04-new-chess-post/",
+    "title": "New chess post",
+    "description": "A short description of the post.",
+    "author": [
+      {
+        "name": "Robert Pikmets",
+        "url": "https://github.com/robertpikmets"
+      }
+    ],
+    "date": "2021-07-04",
+    "categories": [],
+    "contents": "\nWin or lose?\nLet’s find out.\n\n\n\n",
+    "preview": {},
+    "last_modified": "2021-07-04T19:25:04+03:00",
+    "input_file": "new-chess-post.knit.md"
+  }
+]
