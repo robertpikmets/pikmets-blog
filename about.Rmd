@@ -1,9 +1,16 @@
 ---
 title: "About me"
-description: |
-  Some additional details
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
+
+### Robert Pikmets
+
+* Likes finding answers to tricky questions by looking at the data 
+* Experienced in machine learning, predictive modelling and performing data processing, analysis and visualisation in R and Python
+* Currently working at Eesti Energia, solving some of the most crucial problems in modelling wind and solar power
+* MSc Actuarial and Financial Engineering from University of Tartu
+
+For more information, check out my CV at https://git.io/JlT0U. I can be contacted on my e-mail address: robertpikmets@gmail.com

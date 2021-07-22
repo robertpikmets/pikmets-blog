@@ -1,5 +1,6 @@
 name: "pikmets-blog"
 title: "pikmets.blog"
+theme: theme_alt.css
 description: |
   pikmets.blog
 output_dir: "_site"
@@ -9,4 +10,9 @@ navbar:
       href: index.html
     - text: "About"
       href: about.html
+    - icon: fab fa-github
+      href: https://github.com/robertpikmets
+    - icon: fab fa-linkedin
+      href: https://www.linkedin.com/in/robert-pikmets/
+      
 output: distill::distill_article

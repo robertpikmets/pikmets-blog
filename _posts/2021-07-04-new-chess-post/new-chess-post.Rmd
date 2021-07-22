@@ -1,23 +1,106 @@
 ---
-title: "New chess post"
+title: "Predicting chess games' outcome"
 description: |
-  A short description of the post.
+  On how I will never play the London System at 2am again.
 author:
   - name: Robert Pikmets
     url: https://github.com/robertpikmets
-date: 07-04-2021
+date: 07-20-2021
 output:
   distill::distill_article:
     self_contained: false
 ---
 
-
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Win or lose?
 
-Let's find out.
+## Introduction
+
+It is 01:42 am, at a random night in 2018. I have just finished an online chess game, most likely while procrastinating on a school project. I played a blitz game as white, opting for the London system (1. e4 e5, 2. Bf4 ...), which I did religiously play in that time period. The game lasted 34 moves and as usual, I was the one in time trouble. Regarding the awfully common occurrence of time management issues, I like to think I'm just too much of a perfectionist as opposed to just being slow - but who knows.
 
 
+This random game, one of 4593 total games I have played on lichess.org over the years, caught my eye while pulling all of my chess data using the lichess API. Several questions came to mind:
+
+- Can I predict the outcome with >50% accuracy?
+- Am I actually slower than the average player?
+- How to maximise rating gain?
+
+
+## Writing code
+
+### Pulling in data
+
+Firstly, I built this small piece of code that sends a request to the Lichess' API, creates a .json file containing the games of some user and outputting this data to a data frame. In addition to the username, the function takes in a Personal Access Token (which can be created here: https://lichess.org/account/oauth/token) and a list of query specifications as function parameters. Query parameters are described here: https://lichess.org/api#operation/apiGamesUser. Pulling data works the fastest when the request is authenticated (with the token) and when downloading your own games - in that case, 60 games per second are downloaded. In my case, it takes about a minute. The requested JSON file is roughly 10 MB in size, so the following JSON streaming and data analysis should be completely manageable for my laptop that is soon of retirement age.
+
+```{r message=FALSE, warning=FALSE}
+library(httr); library(jsonlite); library(tidyverse)
+
+get_chess_data <- function(username, token, query) {
+  url <- paste("https://lichess.org/api/games/user/", username, sep = "")
+  
+  request <- GET(url, 
+                 #default is PGN format, have to specify this in the ACCEPT 
+                 #header for json data. an helper function from httr package is used
+                 accept("application/x-ndjson"), 
+                 #add token in the Authorization header
+                 add_headers(Authorization = paste("Bearer", token, sep = " ")),
+                 query = query)
+  
+  json_content <- content(request, as="text", encoding = 'utf-8')
+  
+  #writes a file in current working directory
+  #write() function minifies the JSON records
+  write(json_content, "chess_data.json")
+  
+  #ndjson::stream_in is an alternative - that one requires only the path
+  #as input, jsonlite::stream_in requires file()
+  stream_data <- jsonlite::stream_in(file('chess_data.json'))
+  data <- jsonlite::flatten(stream_data)
+  return(data)
+}
+```
+
+To be more specific, the API actually outputs data in a NDJSON format, which stands for Newline-delimited JSON. NDJSON consists of individual lines where each line is any valid JSON text and each line is delimited with a newline character. While each individual line is valid JSON, the complete file as a whole is technically no longer valid JSON. Hence, it is a good idea to use jsonlite's stream_in function for streaming the file in line-by-line. This is a pretty good approach actually as parsing a single huge JSON string would likely be more inefficient. 
+
+Arguments to the function are specified as such:
+
+```{r eval=FALSE}
+#query parameters should be added as a list object
+query <- list(rated = "true", 
+              perfType = "blitz,rapid,classical",
+              clocks = "true",
+              pgnInJson = "true",
+              opening = "true")
+
+username <- "hotleafjuice" #that's me, some good ol' Avatar: The Last Airbender reference
+
+token <- "xxxxxxxxxxxxxx" #hidden for security purposes
+
+```
+
+I wanted to filter my games to only rated ones as this is likely to leave out any funny business which probably takes places while playing casual games with friends. I also left out bullet games - on my level, it's the one with the fastest index finger who usually wins and it's probably pointless to search for any real chess insight from these games. Furthermore, I wanted to get detailed clock information on each of the games to find out if I really am a super ~~slow~~ careful player. But as it turned out, this detailed clock information only comes along when I also set the pgnInJson parameter as true.
+Lastly, I want to see if my choice of opening can be a significant variable in predicting game outcome.
+
+So let's call the function and have a look at the output
+
+```{r eval=FALSE}
+data <- get_chess_data(username, token, query)
+
+str(data %>% select(-moves, -pgn, -opening.name))
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+data <- readRDS("/Users/Roobu/blog/pikmets-blog/data.rds")
+```
+
+```{r echo=FALSE}
+str(data %>% select(-moves, -pgn, -opening.name))
+```
+
+At the moment, I left out 3 variables from the structure call, simply because they contain really long strings and I could not figure out (in reasonable time) how to format the str() call such that the output would not exceed the blog website's width all the way to the very right side.
+
+So in total, I have 3304 observations (games) and 30 variables. Some of the variables are redundant, which I will leave out. Detailed clock information is inside the pgn variable - I will deal with this data later on.
+
+Stay tuned folks, part 2 is coming soon..

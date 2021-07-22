@@ -1,0 +1,181 @@
+---
+title: "Logistic regression vs random forest: loan applications"
+description: |
+  Only one can emerge victorious... right?
+author:
+  - name: Robert Pikmets
+    url: https://github.com/robertpikmets
+date: 07-12-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction
+
+Before I'll start on working on any new projects, I'll post some of my older works. The following was done in February 2020 and it was actually a home task for a job application to a certain bank. Didn't get the job, but I suppose it's good enough for a first blog post. I'll post it in its original form, but if I have any further comments now, going through it more than a year later, I'll add them in the end.
+
+### Problem statement
+
+There is data on 2000 loan applications, of which 915 have been approved. Based on this data, 1000 new applications should be evaluated, out of which 500 should be accepted. Since the final outcome should be binary, either YES or NO, this is a classification problem. I will develop a logistic regression model and a random forest model, of which I shall choose the more suitable one to solve the problem.
+
+Additionally, two questions should be answered:
+
+1. What’s the probability that client number 200 (Client_No=200) will fall under the
+category Got_Approval=YES?
+
+2. What’s the most important variable for approval?
+
+### Step 1: Get data in, explore
+
+```{r message=FALSE, warning=FALSE}
+#first, load in necessary libraries
+library(tidyverse); library(caret); library(GGally); library(pROC); library(lmtest)
+loan_data <- read.csv("decided_data.csv", stringsAsFactors = TRUE) #decided upon applications
+applications <- read.csv("application_data.csv", stringsAsFactors = TRUE) #new applications
+
+ggpairs(loan_data %>% select(-Client_No))
+```
+
+I used ggpairs() function to generate basic plots for all the column pairs in the data. This is a quick way to see if there are any dependencies and which variables seem to be important in explaining getting approval. Monthly income seems to be influencing it a lot, based on the box plot. Obligations looks relevant as well. However, it is unclear whether years worked is having an effect, so at this point, I'm a bit sceptical of this variable.
+
+### Step 2: Splitting data
+
+This is important for having independent data sets. Models will be trained only on 80% of the data, which can then be tested on 20% of remaining, out of sample data. Note that our loan data is actually already quite balanced, meaning YES and NO results are rather similar (915 vs 1085). CreateDataPartition() actually balances the splits on its own as well. 
+
+```{r}
+set.seed(42)
+rowsToTrain <- createDataPartition(loan_data$Got_Approval, p=0.80, list=FALSE)
+training_set <- loan_data[rowsToTrain,]
+test_set <- loan_data[-rowsToTrain,]
+```
+
+
+### Step 3: Best logistic regression model
+
+I created 3 logistic regression models on training set: model1 uses only monthly income to predict getting approval, then I added obligations to the second model and finally, included all three variables in model3. 
+
+```{r}
+model1 <- glm(Got_Approval ~ Monthly_Income, data = training_set, family = binomial()) 
+model2 <- glm(Got_Approval ~ Monthly_Income + Obligations, 
+              data = training_set, family = binomial()) 
+model3 <- glm(Got_Approval ~ Monthly_Income + Years_Worked + Obligations, 
+              data = training_set, family = binomial()) 
+```
+
+First, I had a look at statistical significance of the independent variables in all models: they were all significant according to the P-value. Then, I compared Akaike information criterions (AIC) of the models, best fit represented by minimum AIC. AIC is good for making relative comparisions, it rewards goodness of fit and penalises complexity (i.e. overfitting). A rule of thumb, outlined in Burnham & Anderson (2004) is that if the difference between i-th model's AIC and minimum AIC is higher than 10, i-th model has essentially no support.
+
+```{r}
+c(model1$aic, model2$aic, model3$aic)
+model2$aic - model3$aic > 10
+```
+
+As an additional measure, I also conducted a likelihood ratio test (suitable for nested models), where a higher negative log likelihood (i.e. closer to 0) indicates a better fit.
+
+```{r}
+lrtest(model2, model3)$LogLik
+```
+
+Both tests agree with each other and provide evidence that model3 is the best logistic regression model. Whereas I was sceptical of including years worked in the model at first, evidence says otherwise. 
+
+### Step 4: Develop a random forest model; implement cross-validation
+
+Random forest (RF) is a tree-based modelling approach, which combines many individual decision trees to vote for some class prediction. I will also implement k-fold cross-validation (CV), which is a tool for avoiding overfitting and validating the model on different subsets of the data. Note that for logistic regression (LR), CV does not actually change any parameters (as there aren't any hyperparameters), so I've implemented it for evaluation purposes. I can check how the model might perform out of sample by looking at the variance and accuracies of each of the k fold. For random forest, CV also tunes its hyperparameter "mtry" to avoid overfitting. 
+
+```{r message=FALSE, warning=FALSE, results='hide'}
+train_control <- trainControl(method="cv", number=10)
+#same logistic regression model as model3, but cross-validated
+set.seed(42)
+lr_model <- train(Got_Approval ~ Monthly_Income + Years_Worked + Obligations,
+            data = training_set, trControl = train_control,method = "glm", family=binomial())
+#random forest model, same CV method. Includes all 3 variables of interest
+set.seed(42)
+rf_model <- train(Got_Approval ~ Monthly_Income + Years_Worked + Obligations,
+                  data = training_set, trControl = train_control, method ="rf", ntree=500)
+```
+
+What we can see see is that the LR model actually achieves a little bit higher average accuracy of 92.2%  across 10 folds, compared with 91.7% accuracy in case of RF. Note that this accuracy is not always the best metric to compare models, but in case of balanced data, one could say it's not bad either.
+
+```{r}
+lr_model$results
+rf_model$results
+
+```
+
+
+### Step 5: Make predictions, evaluate results
+
+```{r}
+#logistic regression predictions on test set using a 0.5 cutoff 
+regr_prob <- predict(lr_model, newdata = test_set, type = "prob")
+test_set$lr_prob <- regr_prob$YES #adds probabilities of YES as a column
+test_set$lr_prediction <- ifelse(test_set$lr_prob > 0.5, "YES", "NO") #adds classification
+test_set$lr_prediction <- as.factor(test_set$lr_prediction) 
+```
+
+Here it is very important to note that I have chosen a some-what arbitrary cut-off point of 0.5 for classification into either YES or NO. This takes a simplistic approach, saying that applications more probable to be approved, have been approved (i.e. >50%). Using some threshold makes strong assumptions about the underlying cost or utility functions, i.e. the consequences of decisions. In a credit context, giving out bad loans often has higher costs associated than not giving out good loans, meaning a higher threshold could be prefered. At this point, I don't have enough info to set a better cut-off point than 0.5.
+
+```{r}
+#random forest predictions, which also use a 0.5 threshold
+forest_prob <- predict(rf_model, newdata = test_set, type = "prob")
+test_set$rf_prob <- forest_prob$YES #adds probabilities of YES as a column
+test_set$rf_prediction <- ifelse(test_set$rf_prob > 0.5, "YES", "NO") #adds classification
+test_set$rf_prediction <- as.factor(test_set$rf_prediction) 
+```
+
+A good way to compare the models (in case of balanced data) is the ROC curve and Area Under Curve (AUC). A ROC curve summarizes the trade-off between the true positive rate and false positive rate using different probability thresholds, i.e. our previous cut-off point of 0.5 does not play a role. A higher AUC suggests the model is better at predicting.
+
+```{r message=FALSE, warning=FALSE}
+lr_roc = roc(test_set$Got_Approval ~ test_set$lr_prob, plot = FALSE)
+rf_roc = roc(test_set$Got_Approval ~ test_set$rf_prob, plot = FALSE)
+c(auc(lr_roc), auc(rf_roc))
+
+plot(lr_roc)
+plot(rf_roc)
+```
+
+We get results very close to 1, RF model having only slightly higher AUC. Such high AUCs tell that both models are very good classifiers. Finally, as one of the questions is which variable is most important for approval, let's check it:
+
+```{r}
+#logistic regression on the left, random forest on the right
+cbind(varImp(lr_model, scale=FALSE)[[1]],varImp(rf_model, scale=FALSE)[[1]])
+```
+
+Both models agree that monthly income is the most important variable. But interestingly, they disagree on the other two variables.
+
+So what do make of all of this? In conclusion, both models have great predictive capabilities, the differences are rather minimal. I believe it is a matter of judgement, which model to use: random forest got slightly better results in the test set, however, logistic regression is simpler, computationally less taxing and more easily interpretable. For now, based on these advantages, I think it is reasonable to keep the logistic regression model to predict the loan approvals on new applications. The model chosen has such parameters: 
+
+```{r echo=FALSE}
+lr_model$finalModel[1]
+```
+
+What this says is that monthly income and years worked have a positive effect on the log-odds of a loan being accepted, while having any previous obligations has a negative effect.
+
+### Step 6: Classifying 1000 new applications
+
+Since I've been asked to strictly select 500 clients whom a loan should be given to, I will just choose the top 500 clients with highest probability of getting a loan. Please see the excel file for results. 
+
+```{r}
+probability <- predict(lr_model, newdata = applications, type = "prob")
+applications$probability <- probability$YES
+applications <- applications %>% arrange(desc(probability)) #reorder in terms of probability
+applications$decision[1:500] <- "YES"
+applications$decision[501:nrow(applications)] <- "NO"
+applications$decision <- as.factor(applications$decision)
+```
+
+Note that the threshold in this case is roughly 0.47, meaning it may not actually be a good idea to approve a loan for all 500 clients (depends on the context). And finally, what's the probability that client number 200 will get an approval? It should be roughly 2.9%.
+
+```{r}
+client_200 <- applications %>% filter(Client_No == 200)
+client_200$probability
+```
+
+### New comments
+
+One thing I noticed is that I barely (actually not at all) talked about the method I used to evaluate variable importance. I'm pretty sure different metrics are being calculated for logistic regression and random forest and that should have been explained. 
