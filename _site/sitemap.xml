@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" version="1.0">
+  <url>
+    <loc>https://pikmets.blog/about.html</loc>
+    <lastmod>2021-07-22T09:38:17+03:00</lastmod>
+  </url>
+  <url>
+    <loc>https://pikmets.blog/</loc>
+    <lastmod>2021-07-04T19:18:42+03:00</lastmod>
+  </url>
+  <url>
+    <loc>https://pikmets.blog/posts/2021-07-04-new-chess-post/</loc>
+    <lastmod>2021-07-22T02:30:28+03:00</lastmod>
+  </url>
+  <url>
+    <loc>https://pikmets.blog/posts/2021-07-20-electricity-prices/</loc>
+    <lastmod>2021-07-22T11:23:52+03:00</lastmod>
+  </url>
+  <url>
+    <loc>https://pikmets.blog/posts/2021-07-20-loan-applications/</loc>
+    <lastmod>2021-07-22T11:34:15+03:00</lastmod>
+  </url>
+  <url>
+    <loc>https://pikmets.blog/posts/2021-07-20-introduction/</loc>
+    <lastmod>2021-07-28T11:19:21+03:00</lastmod>
+  </url>
+</urlset>
