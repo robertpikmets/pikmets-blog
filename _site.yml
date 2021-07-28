@@ -1,7 +1,7 @@
 name: "pikmets-blog"
 title: "pikmets.blog"
 base_url: https://pikmets.blog
-google_analytics: "G-NS1RLQ7CX7"
+google_analytics: "UA-203445230-1"
 theme: theme_alt.css
 description: |
   pikmets.blog

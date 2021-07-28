@@ -5,14 +5,14 @@
       "title": "About me",
       "author": [],
       "contents": "\nRobert Pikmets\nLikes finding answers to tricky questions by looking at the data\nExperienced in machine learning, predictive modelling and performing data processing, analysis and visualisation in R and Python\nCurrently working at Eesti Energia, solving some of the most crucial problems in modelling wind and solar power\nMSc Actuarial and Financial Engineering from University of Tartu\nFor more information, check out my CV at https://git.io/JlT0U. I can be contacted on my e-mail address: robertpikmets@gmail.com\n\n\n\n",
-      "last_modified": "2021-07-28T11:19:26+03:00"
+      "last_modified": "2021-07-28T11:46:52+03:00"
     },
     {
       "path": "index.html",
       "title": "Posts",
       "author": [],
       "contents": "\n\n\n\n",
-      "last_modified": "2021-07-28T11:19:27+03:00"
+      "last_modified": "2021-07-28T11:46:53+03:00"
     }
   ],
   "collections": ["posts/posts.json"]
