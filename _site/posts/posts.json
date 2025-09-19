@@ -1,5 +1,22 @@
 [
   {
+    "path": "posts/2025-09-19-comeback/",
+    "title": "Comeback",
+    "description": "What's next?",
+    "author": [
+      {
+        "name": "Robert Pikmets",
+        "url": "https://github.com/robertpikmets"
+      }
+    ],
+    "date": "2025-09-19",
+    "categories": [],
+    "contents": "Hi",
+    "preview": {},
+    "last_modified": "2025-09-19T02:30:28+03:00",
+    "input_file": {}
+  },
+  {
     "path": "posts/2021-07-04-new-chess-post/",
     "title": "Predicting chess games' outcome",
     "description": "On how I will never play the London System at 2am again.",
