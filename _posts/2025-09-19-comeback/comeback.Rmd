@@ -1,0 +1,39 @@
+---
+title: "Comeback"
+description: |
+  Hello again, world
+preview: images/print.jpeg
+author:
+  - name: Robert Pikmets
+    url: https://github.com/robertpikmets
+date: 09-19-2025
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{r setup, include=FALSE, fig.align="center"}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Hi. 4 years have passed since my last blog post. Naturally, quite a lot has happened in this time. Bought my very first home. Fell in and out of love a few times. Picked up photography. Picked up surfing. Backpacked SE Asia solo for months, including riding through most of Vietnam, 2500+km from south to north, on a motorcycle. Had a few close encounters with drowning after attempting to surf sketchy reef points such as Super Suck and Scar Reef (I wonder where the naming is coming from?) in West Sumbawa, Indonesia. OK, I might be slightly exaggerating on the drowning part, but I do have a few scars to show for it.
+
+Most of this time, I’ve been working as a Python/Data Engineer, in the hopes that one day, I shall arrive at a point where I have at least some clue as to what I am doing. Excluding the first half of 2025 though, as this is when I quit my job to travel full time for a while.
+
+Now, in September, I’m still unemployed though, even after a few months of fairly serious attempts to get a (suitable) new job as a software/ML engineer and make a comeback to an office with carbonated water straight from the tap and biweekly retros of playing geoguessr – you know, all the important stuff that makes you grow as an engineer. But perhaps this somewhat forced free time is an opportunity? To solve a problem, to create a piece of software that I am really proud of, to really grow – instead of that carbonated, triple filtered tap water? Hmm..
+
+Ah, one more thing has happened since my last blog post – I also unlearned how to use blinkers in traffic as I finally bought a BMW. I promise I am not trying to show off, but instead, strangely enough, this is a crucial point in the context of this blog - the next several months of posts, filled with experiments in computer vision and stable diffusion and who knows, perhaps even my very first SaaS will have happened exactly because of my new BMW and the fact that I simply wanted to buy new wheels for it.
+
+Surely there is a good way to virtually test wheels on the exact image of your car in 2025? Well, see this screenshot from reddit on how it is done apparently:
+
+[pic from reddit].
+
+What about LLMs? ChatGPT started hallunicating harder than me on 4g of mushrooms when I asked it to combine two images. Gemini was able to replace the wheels fairly well, but only after my 7th prompt and many angry words (sorry!) later. OK, I will do it myself then. Perhaps the idea is a bit silly and its scale doesn’t really match my ambitions, but it’s a perfect hands-on learning opportunity and an excuse to dive deep into AI, LLMs, SD and other cool cats.
+
+Obviously, as any lazy (read: good) programmer nowadays, I’m also working with a robot friend as a pair programmer/business partner/therapist. I have a rule though – you must be able to point at any part of the code I’ve used the help of AI to create and I will have to be able to explain exactly what this code does and why it exists in the first place. Secondly, I won’t use its help for these blog posts. I’m writing this stuff foremost to scratch that creative itch inside me and secondly, to immortalise my learnings along the way.
+
+Thanks for reading. Stay tuned. I never did finish my chess project from the previous blog post, sorry for that.
+
+TLDR: Time has passed. I want new wheels on my BMW.
+
